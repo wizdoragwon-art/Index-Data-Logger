@@ -193,11 +193,11 @@ export default function App() {
 
   const getDynamicSizes = () => {
     const n = counters.length;
-    if (n <= 2) return { count: '6vh', idx: '4.5vh' };
-    if (n <= 4) return { count: '5vh', idx: '3.5vh' };
-    if (n <= 6) return { count: '4vh', idx: '2.8vh' };
-    if (n <= 8) return { count: '3vh', idx: '2.2vh' };
-    return { count: '2.5vh', idx: '1.8vh' };
+    if (n <= 2) return { count: '6vh', idx: '4.5vh', icon: 48 };
+    if (n <= 4) return { count: '5vh', idx: '3.2vh', icon: 40 };
+    if (n <= 6) return { count: '4vh', idx: '2.5vh', icon: 32 };
+    if (n <= 8) return { count: '3vh', idx: '2.2vh', icon: 28 };
+    return { count: '2.5vh', idx: '1.8vh', icon: 24 };
   };
   const sizes = getDynamicSizes();
 
@@ -292,17 +292,17 @@ export default function App() {
           </div>
 
           {/* Main Counter List */}
-          <main className="flex-1 flex flex-col p-2 gap-2 overflow-y-auto min-h-0 bg-slate-100 scroll-smooth">
+          <main className="flex-1 flex flex-col p-2 gap-2 overflow-hidden bg-slate-100">
             {counters.map((c) => (
               <div 
                 key={c.id} 
-                className="flex-none flex items-stretch bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden min-h-[100px] sm:min-h-[120px] relative transition-all duration-200 active:ring-2 active:ring-[#008C44]/20"
+                className="flex-1 flex items-stretch bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden min-h-0 relative transition-all duration-200 active:ring-2 active:ring-[#008C44]/20"
               >
                 <button 
                   onClick={() => updateCount(c.id, -1)} 
                   className="w-[22%] sm:w-[25%] bg-slate-400 text-white active:bg-slate-500 flex items-center justify-center shadow-[inset_-6px_0_15px_rgba(0,0,0,0.1)] transition-colors shrink-0"
                 >
-                  <Minus size={32} sm:size={40} strokeWidth={4} />
+                  <Minus size={sizes.icon} strokeWidth={4} />
                 </button>
                 
                 <div className="flex-1 flex flex-row items-center justify-center min-h-0 overflow-hidden relative p-1 sm:p-2 gap-1 sm:gap-3">
@@ -324,7 +324,7 @@ export default function App() {
                   onClick={() => removeCounter(c.id)} 
                   className="w-10 sm:w-16 bg-white text-slate-300 active:text-red-500 active:bg-slate-100 flex items-center justify-center border-r border-slate-100 transition-colors shrink-0"
                 >
-                  <Trash2 size={18} sm:size={20}/>
+                  <Trash2 size={Math.max(16, sizes.icon / 2)} strokeWidth={2}/>
                 </button>
 
                 <button 
@@ -332,7 +332,7 @@ export default function App() {
                   style={{ backgroundColor: c.color }} 
                   className="w-[28%] sm:w-[30%] text-white active:brightness-90 flex items-center justify-center shadow-[inset_6px_0_15px_rgba(0,0,0,0.15)] shrink-0"
                 >
-                  <Plus size={32} sm:size={40} strokeWidth={4} />
+                  <Plus size={sizes.icon} strokeWidth={4} />
                 </button>
               </div>
             ))}
@@ -356,8 +356,8 @@ export default function App() {
         </div>
       ) : (
         // ================= Records Log Tab =================
-        <div className="flex-1 flex flex-col min-h-0 bg-slate-50">
-          <div className="flex-1 flex flex-col min-h-0 p-2 sm:p-3">
+        <div className="flex-1 flex flex-col min-h-0 bg-slate-50 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 p-2 sm:p-3 overflow-hidden">
             
             {/* Undo Notification */}
             {undoHistory && (
