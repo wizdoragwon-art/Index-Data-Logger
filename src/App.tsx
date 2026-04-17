@@ -61,6 +61,13 @@ export default function App() {
     ? "0.00" 
     : (counters.reduce((acc, curr) => acc + curr.value * curr.count, 0) / currentTotal).toFixed(2);
 
+  // Memoized unique indices for the records table
+  const sortedUniqueIndices = React.useMemo(() => {
+    const allIndicesSet = new Set<number>();
+    records.forEach(r => Object.keys(r.counts).forEach(k => allIndicesSet.add(Number(k))));
+    return Array.from(allIndicesSet).sort((a, b) => a - b);
+  }, [records]);
+
   // Add new index
   const addCounter = () => {
     const val = parseFloat(newIndexValue);
@@ -202,10 +209,10 @@ export default function App() {
   const sizes = getDynamicSizes();
 
   return (
-    <div className="flex flex-col h-screen h-[100dvh] w-full bg-slate-50 overflow-hidden select-none font-sans">
+    <div className="flex flex-col h-[100dvh] w-full bg-slate-50 overflow-hidden select-none font-sans fixed inset-0">
       
       {/* 1. Header & Tabs */}
-      <div className="bg-[#008C44] text-white flex-shrink-0 z-30 px-3 py-2 pt-[calc(8px+env(safe-area-inset-top))] flex items-center justify-between shadow-md">
+      <div className="bg-[#008C44] text-white flex-shrink-0 z-30 px-3 py-1.5 pt-[calc(6px+env(safe-area-inset-top))] flex items-center justify-between shadow-md">
         <div className="flex items-center gap-1.5 shrink-0">
           <Leaf size={18} />
           <span className="font-black text-xs tracking-widest uppercase hidden sm:inline-block">Index data Logger (seed R&D)</span>
@@ -357,18 +364,18 @@ export default function App() {
       ) : (
         // ================= Records Log Tab =================
         <div className="flex-1 flex flex-col min-h-0 bg-slate-50 overflow-hidden">
-          <div className="flex-1 flex flex-col min-h-0 p-2 sm:p-3 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 p-1 sm:p-3 overflow-hidden">
             
             {/* Undo Notification */}
             {undoHistory && (
-               <div className="bg-slate-800 text-white px-4 py-3 rounded-2xl flex items-center justify-between shadow-lg mb-3 shrink-0 animate-slide-in-top">
+               <div className="bg-slate-800 text-white px-3 py-2 rounded-xl flex items-center justify-between shadow-lg mb-2 shrink-0 animate-slide-in-top">
                   <div className="flex items-center gap-2">
-                    <RotateCcw size={18} className="text-orange-400" />
-                    <span className="text-xs sm:text-sm font-bold">Records deleted.</span>
+                    <RotateCcw size={16} className="text-orange-400" />
+                    <span className="text-xs font-bold">Records deleted.</span>
                   </div>
                   <button 
                     onClick={handleUndo} 
-                    className="bg-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-black active:scale-95 transition-transform shadow-sm"
+                    className="bg-white text-slate-800 px-2 py-1 rounded-lg text-[10px] font-black active:scale-95 transition-transform shadow-sm"
                   >
                     Undo
                   </button>
@@ -377,38 +384,36 @@ export default function App() {
 
             {records.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-                <List size={48} className="opacity-20 mb-3" />
-                <p className="font-bold">No records found.</p>
-                <p className="text-xs mt-1">Tap [Record Data] in the counter tab to save measurements.</p>
+                <List size={40} className="opacity-20 mb-2" />
+                <p className="font-bold text-sm">No records found.</p>
+                <p className="text-[10px] mt-1 text-center px-10">Tap [Record Data] in the counter tab to save measurements.</p>
               </div>
             ) : (
-              <div className="flex-1 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col min-h-0">
-                <div className="flex-1 overflow-auto">
-                  <table className="w-full text-[11px] sm:text-sm text-center tabular-nums relative">
-                    <thead className="bg-slate-100 text-slate-600 font-black text-[10px] sm:text-xs uppercase border-b border-slate-200 tracking-tighter sticky top-0 z-20 shadow-sm">
+              <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col min-h-0">
+                <div className="flex-1 overflow-auto bg-white">
+                  <table className="w-full text-[10px] sm:text-xs text-center tabular-nums relative border-collapse">
+                    <thead className="bg-slate-100 text-slate-600 font-black uppercase border-b border-slate-200 tracking-tighter sticky top-0 z-20 shadow-sm">
                       <tr>
-                        <th className="px-2 sm:px-3 py-3 sm:py-4 text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 w-12 sm:w-auto shadow-[1px_0_0_#e2e8f0]">Name</th>
-                        <th className="px-1 sm:px-2 py-3 sm:py-4 text-blue-600 border-r border-slate-200">Index</th>
-                        {Array.from(new Set(records.flatMap(r => Object.keys(r.counts)))).sort((a,b)=>Number(a)-Number(b)).map(idx => (
-                          <th key={idx} className="px-1 sm:px-2 py-3 sm:py-4 text-[#008C44] border-r border-slate-200">{idx}</th>
+                        <th className="px-2 py-2 text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 min-w-[60px] shadow-[1px_0_0_#e2e8f0]">Name</th>
+                        <th className="px-1 py-2 text-blue-600 border-r border-slate-200">Index</th>
+                        {sortedUniqueIndices.map(idx => (
+                          <th key={idx} className="px-1 py-2 text-[#008C44] border-r border-slate-200">{idx}</th>
                         ))}
-                        <th className="px-1 sm:px-2 py-3 sm:py-4 text-slate-800 border-r border-slate-200 w-8 sm:w-auto">Total</th>
-                        <th className="px-2 py-2 whitespace-nowrap bg-slate-100 w-auto">
-                          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+                        <th className="px-1 py-2 text-slate-800 border-r border-slate-200">Total</th>
+                        <th className="px-2 py-2 whitespace-nowrap bg-slate-100 min-w-[80px]">
+                          <div className="flex items-center justify-center gap-2">
                             <input
                               type="checkbox"
                               checked={records.length > 0 && selectedRecordIds.length === records.length}
                               onChange={(e) => e.target.checked ? setSelectedRecordIds(records.map(r => r.id)) : setSelectedRecordIds([])}
-                              className="w-4 h-4 sm:w-5 sm:h-5 accent-red-500 cursor-pointer rounded"
+                              className="w-4 h-4 accent-red-500 rounded"
                             />
                             <button
                               onClick={() => selectedRecordIds.length > 0 && openModal('deleteSelected')}
                               disabled={selectedRecordIds.length === 0}
-                              className={`flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md text-[10px] sm:text-[11px] font-black transition-colors ${selectedRecordIds.length > 0 ? 'bg-red-100 text-red-600 active:bg-red-200 border border-red-200 shadow-sm' : 'text-slate-400 bg-slate-50 border border-slate-200 cursor-not-allowed'}`}
+                              className={`p-1.5 rounded-md transition-colors ${selectedRecordIds.length > 0 ? 'bg-red-100 text-red-600 border border-red-200' : 'text-slate-300 bg-slate-50 border border-slate-200'}`}
                             >
-                              <Trash2 size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-                              <span className="hidden sm:inline">Delete Selected</span>
-                              <span className="sm:hidden leading-none">Del</span>
+                              <Trash2 size={12} strokeWidth={3} />
                             </button>
                           </div>
                         </th>
@@ -418,22 +423,22 @@ export default function App() {
                       {records.map((r) => (
                         <tr key={r.id} className="hover:bg-slate-50 transition-colors">
                           <td
-                            className={`px-2 sm:px-3 py-2 sm:py-2.5 text-left sticky left-0 bg-white z-10 border-r border-slate-200 font-bold whitespace-normal break-words leading-tight ${r.name.length > 10 ? 'text-[8px] sm:text-xs' : r.name.length > 5 ? 'text-[9px] sm:text-sm' : 'text-[11px] sm:text-sm'} shadow-[1px_0_0_#e2e8f0]`}
-                            style={{ minWidth: '40px' }}
+                            className="px-2 py-1.5 text-left sticky left-0 bg-white z-10 border-r border-slate-200 font-bold whitespace-normal break-words leading-tight shadow-[1px_0_0_#e2e8f0]"
+                            style={{ maxWidth: '80px' }}
                           >
-                            {r.name}
+                            <span className="line-clamp-2">{r.name}</span>
                           </td>
-                          <td className="px-1 sm:px-2 py-2 sm:py-2.5 text-blue-600 font-black border-r border-slate-200 whitespace-nowrap">{r.average}</td>
-                          {Array.from(new Set(records.flatMap(rec => Object.keys(rec.counts)))).sort((a,b)=>Number(a)-Number(b)).map(idx => (
-                            <td key={idx} className="px-1 sm:px-2 py-2 sm:py-2.5 border-r border-slate-200 font-bold text-slate-900">{r.counts[Number(idx)] || 0}</td>
+                          <td className="px-1 py-1.5 text-blue-600 font-black border-r border-slate-200">{r.average}</td>
+                          {sortedUniqueIndices.map(idx => (
+                            <td key={idx} className="px-1 py-1.5 border-r border-slate-200 font-bold text-slate-900">{r.counts[Number(idx)] || 0}</td>
                           ))}
-                          <td className="px-1 sm:px-2 py-2 sm:py-2.5 text-slate-900 font-black bg-slate-50/50 border-r border-slate-200">{r.total}</td>
-                          <td className="px-2 py-2 text-center">
+                          <td className="px-1 py-1.5 text-slate-900 font-black bg-slate-50/50 border-r border-slate-200">{r.total}</td>
+                          <td className="px-2 py-1.5 text-center">
                             <input
                               type="checkbox"
                               checked={selectedRecordIds.includes(r.id)}
                               onChange={() => toggleSelection(r.id)}
-                              className="w-4 h-4 sm:w-5 sm:h-5 accent-red-500 cursor-pointer inline-block align-middle"
+                              className="w-4 h-4 accent-red-500 rounded"
                             />
                           </td>
                         </tr>
@@ -445,18 +450,18 @@ export default function App() {
             )}
           </div>
           
-          <footer className="bg-white p-3 border-t border-slate-200 flex gap-2 pb-[calc(12px+env(safe-area-inset-bottom))] flex-shrink-0">
+          <footer className="bg-white p-2 border-t border-slate-200 flex gap-2 pb-[calc(8px+env(safe-area-inset-bottom))] flex-shrink-0">
             <button 
               onClick={() => openModal('clearRecords')} 
-              className="flex-1 h-14 bg-slate-100 text-slate-500 rounded-2xl font-bold active:bg-slate-200 transition-colors"
+              className="flex-1 h-12 bg-slate-100 text-slate-500 rounded-xl font-bold active:bg-slate-200 transition-colors text-xs"
             >
               Clear Log
             </button>
             <button 
               onClick={exportCSV} 
-              className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform text-base"
+              className="flex-[2] h-12 bg-slate-900 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform text-sm"
             >
-              <Download size={20} /> Export All to CSV
+              <Download size={18} /> Export CSV
             </button>
           </footer>
         </div>
