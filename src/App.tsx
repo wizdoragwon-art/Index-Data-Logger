@@ -202,10 +202,10 @@ export default function App() {
   const sizes = getDynamicSizes();
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-50 overflow-hidden select-none touch-none font-sans">
+    <div className="flex flex-col h-screen h-[100dvh] w-full bg-slate-50 overflow-hidden select-none font-sans">
       
       {/* 1. Header & Tabs */}
-      <div className="bg-[#008C44] text-white flex-shrink-0 z-30 px-3 py-2 flex items-center justify-between">
+      <div className="bg-[#008C44] text-white flex-shrink-0 z-30 px-3 py-2 pt-[calc(8px+env(safe-area-inset-top))] flex items-center justify-between shadow-md">
         <div className="flex items-center gap-1.5 shrink-0">
           <Leaf size={18} />
           <span className="font-black text-xs tracking-widest uppercase hidden sm:inline-block">Index data Logger (seed R&D)</span>
@@ -292,30 +292,29 @@ export default function App() {
           </div>
 
           {/* Main Counter List */}
-          <main className="flex-1 flex flex-col p-2 gap-2 overflow-hidden min-h-0 bg-slate-100">
+          <main className="flex-1 flex flex-col p-2 gap-2 overflow-y-auto min-h-0 bg-slate-100 scroll-smooth">
             {counters.map((c) => (
               <div 
                 key={c.id} 
-                className="flex-1 flex items-stretch bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden min-h-0 relative"
-                style={{ maxHeight: `${100 / counters.length}%` }}
+                className="flex-none flex items-stretch bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden min-h-[100px] sm:min-h-[120px] relative transition-all duration-200 active:ring-2 active:ring-[#008C44]/20"
               >
                 <button 
                   onClick={() => updateCount(c.id, -1)} 
-                  className="w-[25%] bg-slate-400 text-white active:bg-slate-500 flex items-center justify-center shadow-[inset_-6px_0_15px_rgba(0,0,0,0.1)] transition-colors shrink-0"
+                  className="w-[22%] sm:w-[25%] bg-slate-400 text-white active:bg-slate-500 flex items-center justify-center shadow-[inset_-6px_0_15px_rgba(0,0,0,0.1)] transition-colors shrink-0"
                 >
-                  <Minus size={40} strokeWidth={4} />
+                  <Minus size={32} sm:size={40} strokeWidth={4} />
                 </button>
                 
-                <div className="flex-1 flex flex-row items-center justify-center min-h-0 overflow-hidden relative p-2 gap-2 sm:gap-3">
+                <div className="flex-1 flex flex-row items-center justify-center min-h-0 overflow-hidden relative p-1 sm:p-2 gap-1 sm:gap-3">
                   <span 
-                    className="font-black text-[#008C44] tracking-tighter whitespace-nowrap" 
-                    style={{ fontSize: sizes.idx, lineHeight: 1 }}
+                    className="font-black text-[#008C44] tracking-tighter whitespace-nowrap text-xs sm:text-base" 
+                    style={{ fontSize: `clamp(10px, ${sizes.idx}, 24px)`, lineHeight: 1 }}
                   >
                     Index {c.value} <span className="text-slate-300 ml-0.5">:</span>
                   </span>
                   <span 
                     className="font-black text-slate-900 tabular-nums tracking-tighter truncate" 
-                    style={{ fontSize: sizes.count, lineHeight: 1 }}
+                    style={{ fontSize: `clamp(24px, ${sizes.count}, 64px)`, lineHeight: 1 }}
                   >
                     {c.count}
                   </span>
@@ -323,17 +322,17 @@ export default function App() {
                 
                 <button 
                   onClick={() => removeCounter(c.id)} 
-                  className="w-12 md:w-16 bg-white text-slate-300 active:text-red-500 active:bg-slate-100 flex items-center justify-center border-r border-slate-100 transition-colors shrink-0"
+                  className="w-10 sm:w-16 bg-white text-slate-300 active:text-red-500 active:bg-slate-100 flex items-center justify-center border-r border-slate-100 transition-colors shrink-0"
                 >
-                  <Trash2 size={20}/>
+                  <Trash2 size={18} sm:size={20}/>
                 </button>
 
                 <button 
                   onClick={() => updateCount(c.id, 1)} 
                   style={{ backgroundColor: c.color }} 
-                  className="w-[30%] text-white active:brightness-90 flex items-center justify-center shadow-[inset_6px_0_15px_rgba(0,0,0,0.15)] shrink-0"
+                  className="w-[28%] sm:w-[30%] text-white active:brightness-90 flex items-center justify-center shadow-[inset_6px_0_15px_rgba(0,0,0,0.15)] shrink-0"
                 >
-                  <Plus size={40} strokeWidth={4} />
+                  <Plus size={32} sm:size={40} strokeWidth={4} />
                 </button>
               </div>
             ))}
