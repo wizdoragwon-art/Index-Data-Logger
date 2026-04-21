@@ -177,8 +177,7 @@ export default function App() {
       csv += row;
     });
 
-    const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    const blob = new Blob([BOM, csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8' });
     
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -187,8 +186,10 @@ export default function App() {
     const today = new Date();
     const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
     
-    const firstName = records[0].name || '미지정';
-    const lastName = records[records.length - 1].name || '미지정';
+    // Ensure filename doesn't contain forbidden characters
+    const safeName = (name: string) => name.replace(/[\\/:*?"<>|]/g, '_');
+    const firstName = safeName(records[0].name || '미지정');
+    const lastName = safeName(records[records.length - 1].name || '미지정');
     const namePart = records.length > 1 ? `${firstName} ~ ${lastName}` : firstName;
     const fileName = `${dateStr}_index data_${namePart}.csv`;
     
